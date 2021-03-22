@@ -52,7 +52,7 @@ constructor(
                 false
             )
 
-            val oldWitness = tx.getWitness(i)
+            val oldWitness = tx.inputs[i].witness
 
             val newWitness =
                 when (oldWitness.pushCount) {
@@ -82,7 +82,7 @@ constructor(
                         throw IllegalStateException("Don't know what to do with ${oldWitness.pushCount}-pushes witness")
                 }
 
-            tx.setWitness(i, newWitness)
+            tx.inputs[i].witness = newWitness
         }
 
         return Utils.HEX.encode(tx.bitcoinSerialize())
@@ -103,7 +103,7 @@ constructor(
         outputs.forEach { output ->
             tx.addOutput(
                 Coin.valueOf(output.amount),
-                Address.fromBase58(networkParams, output.address)
+                LegacyAddress.fromBase58(networkParams, output.address)
             )
         }
 
