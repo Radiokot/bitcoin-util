@@ -1,10 +1,12 @@
 plugins {
-    id 'java'
+    id 'java-library'
     id 'org.jetbrains.kotlin.jvm' version '1.4.21'
 }
 
 group 'ua.com.radiokot'
 version '1.0'
+
+sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
