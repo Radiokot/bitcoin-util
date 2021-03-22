@@ -4,6 +4,7 @@ import org.bitcoinj.core.*
 import org.bitcoinj.params.MainNetParams
 import org.bitcoinj.params.TestNet3Params
 import org.bitcoinj.script.Script
+import ua.com.radiokot.bitcoinutil.tx.model.TxOutputData
 import ua.com.radiokot.bitcoinutil.tx.model.UtxoData
 
 class TxSigningUtil
@@ -39,7 +40,7 @@ constructor(
                 ?: throw IllegalArgumentException("No UTXO found for #$i input")
 
             val amount = Coin.valueOf(utxo.amount)
-            val key = DumpedPrivateKey.fromBase58(networkParams, utxo.privateKeyWif).key
+            val key = ECKey.fromPrivate(Utils.HEX.decode(utxo.privateKeyHex))
             val redeemScript = Script(Utils.HEX.decode(utxo.redeemScriptHex))
 
             val signature = tx.calculateWitnessSignature(
@@ -85,5 +86,48 @@ constructor(
         }
 
         return Utils.HEX.encode(tx.bitcoinSerialize())
+    }
+
+    /**
+     * @param inputsUtxo UTXO to be used as transaction inputs in the required order
+     * @param outputs outputs for the transaction in the required order
+     *
+     * @return half-signed transaction hex
+     */
+    fun createAndSignTransaction(
+        inputsUtxo: List<UtxoData>,
+        outputs: List<TxOutputData>
+    ): String {
+        val tx = Transaction(networkParams)
+
+        outputs.forEach { output ->
+            tx.addOutput(
+                Coin.valueOf(output.amount),
+                Address.fromBase58(networkParams, output.address)
+            )
+        }
+
+        inputsUtxo.forEach { inputUtxo ->
+            val scriptSig = Script(byteArrayOf(34, 0, 32)
+                    + Sha256Hash.hash(Utils.HEX.decode(inputUtxo.redeemScriptHex)))
+
+            tx.addInput(
+                TransactionInput(
+                    networkParams,
+                    null,
+                    scriptSig.program,
+                    TransactionOutPoint(
+                        networkParams,
+                        inputUtxo.vOut,
+                        Sha256Hash.wrap(inputUtxo.txId)
+                    ),
+                )
+            )
+        }
+
+        return signHex(
+            txToSignHex = Utils.HEX.encode(tx.bitcoinSerialize()),
+            utxoData = inputsUtxo,
+        )
     }
 }
