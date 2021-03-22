@@ -15,7 +15,10 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
-    api "org.bitcoinj:bitcoinj-core:0.15.10"
+    api("org.bitcoinj:bitcoinj-core:0.15.10") {
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
     api "com.google.guava:guava:26.0-jre"
     api "org.slf4j:slf4j-nop:1.7.25"
 
