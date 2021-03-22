@@ -15,9 +15,9 @@ repositories {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
 
-    implementation "org.bitcoinj:bitcoinj-core:0.15.10"
-    implementation "com.google.guava:guava:26.0-jre"
-    implementation "org.slf4j:slf4j-nop:1.7.25"
+    api "org.bitcoinj:bitcoinj-core:0.15.10"
+    api "com.google.guava:guava:26.0-jre"
+    api "org.slf4j:slf4j-nop:1.7.25"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
